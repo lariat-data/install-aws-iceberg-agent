@@ -1,0 +1,57 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor6",
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket",
+                "s3:GetObject"
+            ],
+            "Resource": [
+		%{ for stub in s3_bucket_stubs ~}
+                "arn:aws:s3:::${stub}",
+                "arn:aws:s3:::${stub}/*",
+                %{ endfor ~}
+		%{ for s3_bucket in s3_buckets ~}
+                "arn:aws:s3:::${s3_bucket}",
+                "arn:aws:s3:::${s3_bucket}/*",
+                %{ endfor ~}
+                "arn:aws:s3:::${iceberg_agent_config_bucket}/*",
+                "arn:aws:s3:::${iceberg_agent_config_bucket}"
+            ]
+	},
+        {
+            "Sid": "GlueDatabases",
+            "Effect": "Allow",
+            "Action": [
+                "glue:GetDatabase",
+                "glue:GetDatabases",
+                "glue:GetTables",
+                "glue:GetTable"
+            ],
+            "Resource": [
+		%{ for glue_database, glue_table in target_glue_database_tables ~}
+		"arn:aws:glue:${glue_region}:${aws_account_id}:database/${glue_database}",
+                %{ endfor ~}
+		"arn:aws:glue:${glue_region}:${aws_account_id}:catalog"
+            ]
+	},
+        {
+            "Sid": "GlueTables",
+            "Effect": "Allow",
+            "Action": [
+                "glue:GetDatabases",
+                "glue:GetTable"
+            ],
+            "Resource": [
+		%{ for glue_database, glue_tables in target_glue_database_tables ~}
+                %{ for glue_table in glue_tables ~}
+		"arn:aws:glue:${glue_region}:${aws_account_id}:table/${glue_database}/${glue_table}",
+                %{ endfor ~}
+                %{ endfor ~}
+		"arn:aws:glue:${glue_region}:${aws_account_id}:catalog"
+            ]
+	}
+    ]
+}
