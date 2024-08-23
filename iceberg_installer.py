@@ -52,8 +52,9 @@ def get_target_glue_database_tables():
     for k, v in agent_config["catalog"].items():
         if k == "glue":
             for db, dbv in v["databases"].items():
+                    target_glue_database_tables[db] = []
                     for _db in dbv:
-                        target_glue_database_tables[db] = [_k for _k, _ in _db.items()]
+                        target_glue_database_tables[db].extend([_k for _k, _ in _db.items()])
 
     return target_glue_database_tables
 
